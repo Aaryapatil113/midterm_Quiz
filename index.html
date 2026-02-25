@@ -8,112 +8,60 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #0d0d0d;
-    font-family: 'Segoe UI', sans-serif;
+    background: #000;
     overflow-x: hidden;
   }
 
-  header {
-    text-align: center;
-    padding: 40px 20px 20px;
-  }
-  header h1 {
-    color: #fff;
-    font-size: 2rem;
-    letter-spacing: 2px;
-  }
-  header p {
-    color: #666;
-    margin-top: 6px;
-    font-size: 0.9rem;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    padding: 30px;
-    max-width: 1400px;
+  .feed {
+    max-width: 600px;
     margin: 0 auto;
+    padding: 20px 0 60px;
   }
 
-  .card {
-    background: #1a1a1a;
-    border-radius: 16px;
-    overflow: hidden;
-    cursor: pointer;
-    transform: scale(0.95);
-    opacity: 0;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    animation: popIn 0.5s forwards;
-  }
-
-  .card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 40px rgba(255,255,255,0.1);
-  }
-
-  .card img {
+  .meme-card {
     width: 100%;
-    height: 300px;
-    object-fit: cover;
+    margin-bottom: 32px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .meme-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .meme-card img {
+    width: 100%;
     display: block;
+    border-radius: 4px;
   }
-
-  .card .tag {
-    padding: 10px 14px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #fff;
-  }
-
-  @keyframes popIn {
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  /* Staggered delay */
-  .card:nth-child(1) { animation-delay: 0.05s; }
-  .card:nth-child(2) { animation-delay: 0.15s; }
-  .card:nth-child(3) { animation-delay: 0.25s; }
-  .card:nth-child(4) { animation-delay: 0.35s; }
-  .card:nth-child(5) { animation-delay: 0.45s; }
-  .card:nth-child(6) { animation-delay: 0.55s; }
-  .card:nth-child(7) { animation-delay: 0.65s; }
-  .card:nth-child(8) { animation-delay: 0.75s; }
 
   /* Lightbox */
   .lightbox {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.92);
+    background: rgba(0,0,0,0.95);
     z-index: 999;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    gap: 16px;
-    padding: 20px;
   }
   .lightbox.active { display: flex; }
-
   .lightbox img {
-    max-width: 90vw;
-    max-height: 80vh;
-    border-radius: 16px;
+    max-width: 95vw;
+    max-height: 95vh;
     object-fit: contain;
-    animation: zoomIn 0.25s ease;
+    border-radius: 4px;
+    animation: zoomIn 0.2s ease;
   }
-
   @keyframes zoomIn {
-    from { transform: scale(0.85); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
+    from { transform: scale(0.9); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
   }
-
-  .lightbox .close-btn {
+  .lightbox .close {
     position: fixed;
-    top: 20px; right: 24px;
+    top: 16px; right: 20px;
     color: #fff;
     font-size: 2rem;
     cursor: pointer;
@@ -121,87 +69,58 @@
     border: none;
     line-height: 1;
   }
-
-  .lightbox .nav {
-    display: flex;
-    gap: 20px;
-  }
-  .lightbox .nav button {
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 50px;
-    padding: 10px 28px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .lightbox .nav button:hover { background: #ddd; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>📚 CS5610 Meme Wall</h1>
-  <p>Click any meme to expand</p>
-</header>
-
-<div class="grid" id="grid"></div>
+<div class="feed" id="feed"></div>
 
 <div class="lightbox" id="lightbox">
-  <button class="close-btn" onclick="closeLightbox()">✕</button>
+  <button class="close" onclick="closeLightbox()">✕</button>
   <img id="lb-img" src="" alt="meme"/>
-  <div class="nav">
-    <button onclick="prevMeme()">← Prev</button>
-    <button onclick="nextMeme()">Next →</button>
-  </div>
 </div>
 
 <script>
   const memes = [
-    { src: "meme1.jpg",  tag: "Responsive Design",     color: "#e94560" },
-    { src: "meme2.jpg",  tag: "HTML Basics",            color: "#f5a623" },
-    { src: "meme3.jpg",  tag: "Frontend vs Design",     color: "#4ecca3" },
-    { src: "meme4.jpg",  tag: "Responsive Testing",     color: "#a78bfa" },
-    { src: "meme5.jpg",  tag: "Browser Compatibility",  color: "#38bdf8" },
-    { src: "meme6.jpg",  tag: "Developer Life",         color: "#fb7185" },
-    { src: "meme7.jpg",  tag: "HTML Structure",         color: "#34d399" },
-    { src: "meme8.jpg",  tag: "Web Dev Stack",          color: "#fbbf24" },
+    "meme1.jpg",
+    "meme2.jpg",
+    "meme3.jpg",
+    "meme4.jpg",
+    "meme5.jpg",
+    "meme6.jpg",
+    "meme7.jpg",
+    "meme8.jpg",
   ];
 
-  const grid = document.getElementById("grid");
-  let current = 0;
+  const feed = document.getElementById("feed");
 
-  memes.forEach((m, i) => {
+  memes.forEach((src, i) => {
     const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <img src="${m.src}" alt="meme ${i+1}" loading="lazy"/>
-      <div class="tag" style="background:${m.color}22; color:${m.color}">${m.tag}</div>
-    `;
-    card.onclick = () => openLightbox(i);
-    grid.appendChild(card);
+    card.className = "meme-card";
+    card.innerHTML = `<img src="${src}" alt="" loading="lazy"/>`;
+    card.querySelector("img").onclick = () => openLightbox(src);
+    feed.appendChild(card);
   });
 
-  function openLightbox(i) {
-    current = i;
-    document.getElementById("lb-img").src = memes[i].src;
+  // Intersection Observer for scroll pop-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("visible");
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll(".meme-card").forEach(c => observer.observe(c));
+
+  function openLightbox(src) {
+    document.getElementById("lb-img").src = src;
     document.getElementById("lightbox").classList.add("active");
   }
 
   function closeLightbox() {
     document.getElementById("lightbox").classList.remove("active");
-  }
-
-  function nextMeme() {
-    current = (current + 1) % memes.length;
-    document.getElementById("lb-img").src = memes[current].src;
-  }
-
-  function prevMeme() {
-    current = (current - 1 + memes.length) % memes.length;
-    document.getElementById("lb-img").src = memes[current].src;
   }
 
   document.getElementById("lightbox").addEventListener("click", e => {
@@ -210,8 +129,6 @@
 
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") closeLightbox();
-    if (e.key === "ArrowRight") nextMeme();
-    if (e.key === "ArrowLeft") prevMeme();
   });
 </script>
 </body>
